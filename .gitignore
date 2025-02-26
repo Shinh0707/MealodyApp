@@ -1,0 +1,38 @@
+# ビルド生成物
+/build/
+*/build/
+app/build/
+
+# ローカル設定ファイル
+local.properties
+
+# IDE関連
+.idea/
+*.iml
+.DS_Store
+
+# Gradle関連
+.gradle/
+.externalNativeBuild/
+.cxx/
+wrapper/dists/
+
+# キーストア関連（機密情報）
+*.jks
+*.keystore
+keystore.properties
+
+# シークレットキーやAPIキー
+secrets.xml
+secrets.properties
+google-services.json
+firebase_config.json
+
+# その他
+captures/
+.navigation/
+freeline/
+freeline_project_description.json
+caches/
+*.log
+*.tmp

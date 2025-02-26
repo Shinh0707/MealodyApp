@@ -1,0 +1,157 @@
+package com.shinh.mealody.ui.screens.search
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.maps.model.LatLng
+import com.shinh.mealody.data.model.Area
+import com.shinh.mealody.data.model.Shop
+import com.shinh.mealody.ui.components.EmptyContent
+import com.shinh.mealody.ui.components.ErrorContent
+import com.shinh.mealody.ui.components.LoadingContent
+import com.shinh.mealody.ui.components.restaurant.AreaSelection
+import com.shinh.mealody.ui.components.restaurant.RestaurantCarousel
+import com.shinh.mealody.ui.components.restaurant.ShopDetailCard
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailedSearchScreen(
+    paddingValues: PaddingValues,
+    title: String,
+    currentLocation: LatLng? = null,
+    onNavigateToAreaSearch: (Area?) -> Unit,
+    viewModel: DetailedSearchViewModel = hiltViewModel()
+) {
+    val searchResults by viewModel.searchManager.searchResults.collectAsState()
+    val matchingArea by viewModel.matchingArea.collectAsState()
+    val searchState by viewModel.searchManager.searchState.collectAsState()
+    val selectedShop by viewModel.searchManager.selectedShop.collectAsState()
+    val availableMore by viewModel.searchManager.availableMore.collectAsState()
+    val storedShops by viewModel.searchManager.storedShops.collectAsState()
+    val availableShops by viewModel.searchManager.availableShops.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.initializeSearchResults()
+    }
+
+    Scaffold(
+        modifier = Modifier.padding(paddingValues),
+        topBar = {
+            TopAppBar(
+                title = { Text(title) }
+            )
+        }
+    ) { innerPadding ->
+        when (searchState) {
+            SearchState.Initial -> LoadingContent(
+                loadingMessage = "準備中"
+            )
+            SearchState.Loading -> LoadingContent()
+            SearchState.Error -> ErrorContent(
+                message = "検索中にエラーが発生しました",
+                onRetry = { viewModel.refreshSearchResults() }
+            )
+            SearchState.Empty -> EmptyContent(
+                message = "検索条件に合うお店が見つかりませんでした"
+            ) {
+                Text(
+                    text = "他の検索条件をお試しください",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
+            SearchState.Success -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    // 検索結果セクション
+                    item {
+                        Text(
+                            text = "検索結果 ($storedShops/$availableShops)",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+
+                    item {
+                        RestaurantCarousel(
+                            shops = searchResults,
+                            currentLocation = currentLocation,
+                            onShopSelected = { viewModel.searchManager.selectShop(it) },
+                            availableMore = availableMore,
+                            onShowMore = { viewModel.searchMore() },
+                            getFavLevel = {
+                                viewModel.getFavLevel(it)
+                            },
+                            onHeartLevelChanged = { shopId, level ->
+                                viewModel.updateHeartLevel(shopId, level)
+                            }
+                        )
+                    }
+
+                    // 選択されたお店の詳細
+                    item {
+                        AnimatedVisibility(
+                            visible = selectedShop != null,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            selectedShop?.let { shop ->
+                                ShopDetailCard(
+                                    shop = shop,
+                                    favoriteLevel = viewModel.getFavLevel(shop).toByte(), // 正しく型変換
+                                    onFavoriteLevelChanged = { level ->
+                                        viewModel.updateHeartLevel(shop.id, level.toInt())
+                                    },
+                                    notes = viewModel.notes.collectAsState().value, // ノートのリストを渡す
+                                    onAddShopToNotes = { noteIds ->
+                                        viewModel.addShopToNotes(shop.id, noteIds)
+                                    },
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // エリア選択（関連エリアがある場合）
+                    item {
+                        matchingArea?.let { area ->
+                            AreaSelection(
+                                matchingArea = area,
+                                onNavigateToAreaSearch = onNavigateToAreaSearch,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
