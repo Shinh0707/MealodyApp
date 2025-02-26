@@ -9,6 +9,7 @@ sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Search : Screen("search")
     object Library : Screen("library")
+    object Settings : Screen("settings")
     object NearbySearch : Screen("nearby_search?lat={lat}&lng={lng}") {
         fun createRoute(lat: Double, lng: Double): String {
             return "nearby_search?lat=$lat&lng=$lng"
@@ -45,4 +46,5 @@ sealed class Screen(val route: String) {
             return "note/$noteId"
         }
     }
+
 }

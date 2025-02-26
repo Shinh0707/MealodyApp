@@ -43,6 +43,7 @@ import com.shinh.mealody.ui.screens.restaurant.RestaurantScreen
 import com.shinh.mealody.ui.screens.search.DetailedSearchScreen
 import com.shinh.mealody.ui.screens.search.NearbySearchScreen
 import com.shinh.mealody.ui.screens.search.SearchScreen
+import com.shinh.mealody.ui.screens.settings.SettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +67,7 @@ fun MainScreen(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = { /* 設定画面へ */ }) {
+                        IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
                             Icon(Icons.Default.Settings, "設定")
                         }
 
@@ -115,6 +116,12 @@ fun MainScreen(
                     onRestaurantClicked = { shop ->
                         onNavigateToRestaurant(shop.id)
                     }
+                )
+            }
+            composable(Screen.Settings.route) {
+                SettingsScreen(
+                    paddingValues = paddingValues,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
