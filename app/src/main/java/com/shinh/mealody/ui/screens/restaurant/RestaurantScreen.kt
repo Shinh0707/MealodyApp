@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,7 +44,6 @@ fun RestaurantScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val notes by viewModel.notes.collectAsState()
 
-    // エラーメッセージがあればスナックバーに表示
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(message = it)
@@ -57,13 +56,11 @@ fun RestaurantScreen(
                 title = { Text(shop?.name ?: "店舗詳細") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "戻る")
+                        Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "戻る")
                     }
                 },
                 actions = {
-                    // お気に入りボタン
                     IconButton(onClick = {
-                        // 現在のレベルが最大なら0に、そうでなければ1つ上げる
                         val newLevel = if (favoriteLevel >= 3) 0.toByte() else (favoriteLevel + 1).toByte()
                         viewModel.updateFavoriteLevel(newLevel)
                     }) {
@@ -72,7 +69,6 @@ fun RestaurantScreen(
                             else -> Icon(
                                 Icons.Default.Favorite,
                                 contentDescription = "お気に入りレベル$favoriteLevel",
-                                // レベルに応じた色を適用できます
                             )
                         }
                     }
@@ -95,7 +91,7 @@ fun RestaurantScreen(
                 errorMessage != null && shop == null -> {
                     ErrorContent(
                         message = "店舗情報の取得に失敗しました",
-                        onRetry = { /* viewModelでの再読み込み処理 */ }
+                        onRetry = { /* TODO: viewModelでの再読み込み処理 */ }
                     )
                 }
                 shop != null -> {
@@ -108,6 +104,7 @@ fun RestaurantScreen(
                         shop?.let { shopData ->
                             ShopDetailCard(
                                 shop = shopData,
+                                favoriteLevel = favoriteLevel,
                                 onFavoriteLevelChanged = { level ->
                                     viewModel.updateFavoriteLevel(level)
                                 },

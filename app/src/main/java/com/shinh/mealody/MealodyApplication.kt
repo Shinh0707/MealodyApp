@@ -16,7 +16,6 @@ class MealodyApplication : Application(){
     override fun onCreate() {
         super.onCreate()
 
-        // アプリ起動時にお気に入りノートを初期化
         CoroutineScope(Dispatchers.IO).launch {
             repository.initializeFavoritesNote()
         }

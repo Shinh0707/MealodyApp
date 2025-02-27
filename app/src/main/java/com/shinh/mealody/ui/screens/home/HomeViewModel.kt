@@ -90,7 +90,7 @@ class HomeViewModel @Inject constructor(
             } else {
                 viewModelScope.launch {
                     try {
-                        val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+                        @Suppress("DEPRECATION") val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
                         addresses?.firstOrNull()?.let { address ->
                             _matchingArea.value = hotpepperClient.findMatchingArea(address)
                         }

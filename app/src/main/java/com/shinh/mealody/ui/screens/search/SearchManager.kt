@@ -30,29 +30,23 @@ class SearchManager @Inject constructor(
     private val hotpepperClient: HotpepperClient,
     @ApplicationContext private val context: Context
 ) {
-    // 独自のCoroutineScope
     private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    // 検索状態
     private val _searchState = MutableStateFlow<SearchState>(SearchState.Initial)
     val searchState = _searchState.asStateFlow()
 
-    // 検索結果
     private val _searchResults = MutableStateFlow<List<Shop>>(emptyList())
     val searchResults = _searchResults.asStateFlow()
 
-    // 選択された店舗
     private val _selectedShop = MutableStateFlow<Shop?>(null)
     val selectedShop = _selectedShop.asStateFlow()
 
-    // 検索クエリと結果の保持
     private val _lastSearchQuery = MutableStateFlow<SearchQuery?>(null)
     val lastSearchQuery = _lastSearchQuery.asStateFlow()
 
     private val _lastResponse = MutableStateFlow<GourmetSearchResults?>(null)
     val lastResponse = _lastResponse.asStateFlow()
 
-    // 取得済みの店舗数
     val storedShops: StateFlow<Int> = _lastResponse.map { response ->
         (response?.resultsReturned ?: 0) + (response?.resultsStart ?: 1) - 1
     }.stateIn(
@@ -61,7 +55,6 @@ class SearchManager @Inject constructor(
         initialValue = 0
     )
 
-    // 利用可能な総店舗数
     val availableShops: StateFlow<Int> = _lastResponse.map { response ->
         response?.resultsAvailable ?: 0
     }.stateIn(
@@ -70,7 +63,6 @@ class SearchManager @Inject constructor(
         initialValue = 0
     )
 
-    // さらに結果があるか
     val availableMore: StateFlow<Boolean> = _lastResponse.map { response ->
         response?.hasMoreResults() ?: false
     }.stateIn(
@@ -79,7 +71,6 @@ class SearchManager @Inject constructor(
         initialValue = false
     )
 
-    // 検索実行
     suspend fun search(query: SearchQuery): Result<List<Shop>> {
         _searchState.value = SearchState.Loading
         _lastSearchQuery.value = query
@@ -94,7 +85,7 @@ class SearchManager @Inject constructor(
                     } else {
                         SearchState.Success
                     }
-                    results.shop  // ここで成功時の値を返す
+                    results.shop
                 }
         } catch (e: Exception) {
             _searchState.value = SearchState.Error
@@ -102,7 +93,6 @@ class SearchManager @Inject constructor(
         }
     }
 
-    // 追加検索（次ページ）
     suspend fun searchMore(): Result<List<Shop>> {
         val lastQuery = _lastSearchQuery.value ?: return Result.failure(
             IllegalStateException("No previous query")
@@ -139,7 +129,6 @@ class SearchManager @Inject constructor(
         }
     }
 
-    // 店舗の選択
     fun selectShop(shop: Shop) {
         managerScope.launch {
             try {
@@ -165,12 +154,10 @@ class SearchManager @Inject constructor(
         _searchState.value = SearchState.Empty
     }
 
-    // 店舗選択のクリア
     fun clearSelectedShop() {
         _selectedShop.value = null
     }
 
-    // 検索状態のリセット
     fun resetSearch() {
         _searchState.value = SearchState.Initial
         _searchResults.value = emptyList()
@@ -179,13 +166,11 @@ class SearchManager @Inject constructor(
         _selectedShop.value = null
     }
 
-    // リソース解放
     fun onDestroy() {
         managerScope.cancel()
     }
 }
 
-// 検索状態
 sealed class SearchState {
     object Initial : SearchState()
     object Loading : SearchState()

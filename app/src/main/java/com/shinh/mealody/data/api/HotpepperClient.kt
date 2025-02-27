@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import android.util.LruCache
-import android.widget.Toast
-import com.google.gson.GsonBuilder
 import com.shinh.mealody.data.model.Area
 import com.shinh.mealody.data.model.AreaType
 import com.shinh.mealody.data.model.GourmetSearchResponse
@@ -366,7 +364,6 @@ class HotpepperClient @Inject constructor(
         }
     }
 
-    // LargeAreaの取得とマッピング (キャッシュ対応)
     suspend fun getLargeAreas(serviceAreaCode: String?=null): Result<List<LargeArea>> = withContext(Dispatchers.IO) {
         // キャッシュがあれば返す
         largeAreasCache?.let {
@@ -418,7 +415,6 @@ class HotpepperClient @Inject constructor(
         }
     }
 
-    // MiddleAreaの取得とマッピング (キャッシュ対応)
     suspend fun getMiddleAreas(largeAreaCode: String): Result<List<MiddleArea>> = withContext(Dispatchers.IO) {
         // キャッシュがあれば返す
         middleAreasCache[largeAreaCode]?.let {
@@ -469,7 +465,6 @@ class HotpepperClient @Inject constructor(
         }
     }
 
-    // SmallAreaの取得とマッピング (キャッシュ対応)
     suspend fun getSmallAreas(middleAreaCode: String): Result<List<SmallArea>> = withContext(Dispatchers.IO) {
         // キャッシュがあれば返す
         smallAreasCache[middleAreaCode]?.let {
@@ -541,7 +536,6 @@ class HotpepperClient @Inject constructor(
         }
     }
 
-    // キャッシュをクリアするメソッド (必要に応じて)
     fun clearCache() {
         largeAreasCache = null
         middleAreasCache.clear()
@@ -553,12 +547,10 @@ class HotpepperClient @Inject constructor(
             // 都道府県から検索
             getLargeAreas().getOrNull()?.let { largeAreas ->
                 val matchingLargeArea = largeAreas.find { address.adminArea.contains(it.name) }
-                // Toast.makeText(context, matchingLargeArea?.getFullName() +" "+matchingLargeArea?.code+" "+address.locality+" "+ address.adminArea, Toast.LENGTH_LONG).show()
                 matchingLargeArea?.let { largeArea ->
                     // 市区町村から検索
                     getMiddleAreas(largeArea.code).getOrNull()?.let { middleAreas ->
                         val matchingMiddleArea = middleAreas.find { address.locality.contains(it.name) }
-                        // Toast.makeText(context, matchingMiddleArea?.getFullName() + address.locality, Toast.LENGTH_LONG).show()
                         matchingMiddleArea?.let { middleArea ->
                             // 小エリアを検索して最長一致を探す
                             getSmallAreas(middleArea.code).getOrNull()?.let { smallAreas ->
@@ -567,10 +559,6 @@ class HotpepperClient @Inject constructor(
                                     val intersection = area.name.commonPrefixWith(subLocality)
                                     intersection.length
                                 }
-
-                                /*matchingSmallArea?.let { smallArea ->
-                                    Toast.makeText(context, smallArea.getFullName(), Toast.LENGTH_LONG).show()
-                                }*/
                                 return matchingSmallArea
                             }
                         }
@@ -579,7 +567,6 @@ class HotpepperClient @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e("","エリア情報の取得に失敗しました")
-            // Toast.makeText(context, "エリア情報の取得に失敗しました", Toast.LENGTH_SHORT).show()
         }
         return null
     }

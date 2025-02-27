@@ -5,7 +5,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.shinh.mealody.data.model.Area
-import com.shinh.mealody.data.model.Shop
 import com.shinh.mealody.ui.components.EmptyContent
 import com.shinh.mealody.ui.components.ErrorContent
 import com.shinh.mealody.ui.components.LoadingContent
@@ -89,7 +87,6 @@ fun DetailedSearchScreen(
                         .padding(innerPadding),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    // 検索結果セクション
                     item {
                         Text(
                             text = "検索結果 ($storedShops/$availableShops)",
@@ -102,19 +99,18 @@ fun DetailedSearchScreen(
                         RestaurantCarousel(
                             shops = searchResults,
                             currentLocation = currentLocation,
-                            onShopSelected = { viewModel.searchManager.selectShop(it) },
+                            onShopSelected = { viewModel.selectShop(it) },
                             availableMore = availableMore,
                             onShowMore = { viewModel.searchMore() },
                             getFavLevel = {
                                 viewModel.getFavLevel(it)
                             },
                             onHeartLevelChanged = { shopId, level ->
-                                viewModel.updateHeartLevel(shopId, level)
+                                viewModel.updateFavoriteLevel(shopId, level)
                             }
                         )
                     }
 
-                    // 選択されたお店の詳細
                     item {
                         AnimatedVisibility(
                             visible = selectedShop != null,
@@ -124,21 +120,20 @@ fun DetailedSearchScreen(
                             selectedShop?.let { shop ->
                                 ShopDetailCard(
                                     shop = shop,
-                                    favoriteLevel = viewModel.getFavLevel(shop).toByte(), // 正しく型変換
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                    favoriteLevel = viewModel.getFavLevel(shop).toByte(),
                                     onFavoriteLevelChanged = { level ->
-                                        viewModel.updateHeartLevel(shop.id, level.toInt())
+                                        viewModel.updateFavoriteLevel(shop.id, level.toInt())
                                     },
-                                    notes = viewModel.notes.collectAsState().value, // ノートのリストを渡す
+                                    notes = viewModel.notes.collectAsState().value,
                                     onAddShopToNotes = { noteIds ->
                                         viewModel.addShopToNotes(shop.id, noteIds)
-                                    },
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                    }
                                 )
                             }
                         }
                     }
 
-                    // エリア選択（関連エリアがある場合）
                     item {
                         matchingArea?.let { area ->
                             AreaSelection(

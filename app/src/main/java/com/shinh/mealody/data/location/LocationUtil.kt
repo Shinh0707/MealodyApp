@@ -20,9 +20,7 @@ class LocationUtil {
                         latLng.longitude,
                         1
                     ) { addresses ->
-                        continuation.resume(addresses.firstOrNull()) {
-                            // エラーハンドリング（必要に応じて）
-                        }
+                        continuation.resume(addresses.firstOrNull()) { _, _, _ -> }
                     }
                 } else {
                     @Suppress("DEPRECATION")
@@ -31,9 +29,7 @@ class LocationUtil {
                     } catch (e: Exception) {
                         null
                     }
-                    continuation.resume(address) {
-                        // エラーハンドリング（必要に応じて）
-                    }
+                    continuation.resume(address) { _, _, _ -> }
                 }
             }
     }

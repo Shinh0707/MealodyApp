@@ -3,7 +3,6 @@ package com.shinh.mealody.ui.screens.note
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shinh.mealody.data.database.entity.NoteEntity
 import com.shinh.mealody.data.database.entity.ShopEntity
 import com.shinh.mealody.data.repository.MealodyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

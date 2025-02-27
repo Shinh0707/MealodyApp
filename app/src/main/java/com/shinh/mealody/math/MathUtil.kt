@@ -8,9 +8,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-class MathUtil {
-
-}
 fun estimateWalkingMinutes(latLng1: LatLng, latLng2: LatLng, walkingSpeedMetersPerMinute: Double=50.0): Int {
     val distanceMeters = calculateDistance(
         latLng1, latLng2

@@ -1,10 +1,8 @@
 package com.shinh.mealody.ui
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -22,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -33,7 +30,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.google.android.gms.maps.model.LatLng
 import com.shinh.mealody.data.model.Area
-import com.shinh.mealody.data.model.Shop
 import com.shinh.mealody.navigation.Screen
 import com.shinh.mealody.ui.screens.area.AreaSearchScreen
 import com.shinh.mealody.ui.screens.home.HomeScreen
@@ -107,7 +103,6 @@ fun MainScreen(
                     paddingValues = paddingValues,
                     onNavigateToAreaSearch = ::onNavigateArea,
                     onSearchByCurrentLocation = { latLng ->
-                        // NearbySearch画面に遷移し、latLngをパラメータとして渡す
                         navController.navigate(Screen.NearbySearch.createRoute(
                             lat = latLng.latitude,
                             lng = latLng.longitude
@@ -160,7 +155,7 @@ fun MainScreen(
                 DetailedSearchScreen(
                     paddingValues = paddingValues,
                     title = title,
-                    currentLocation = null, // 必要に応じて現在地を渡す
+                    currentLocation = null,
                     onNavigateToAreaSearch = ::onNavigateArea
                 )
             }
@@ -188,7 +183,6 @@ fun MainScreen(
                 )
             }
 
-            // 新しく追加する画面のナビゲーション定義
             composable(Screen.Library.route) {
                 LibraryScreen(
                     paddingValues = paddingValues,

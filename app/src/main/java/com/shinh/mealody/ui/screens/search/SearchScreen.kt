@@ -1,5 +1,6 @@
 package com.shinh.mealody.ui.screens.search
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -34,23 +35,18 @@ fun SearchScreen(
     val selectedAreaPrefectures by viewModel.selectedAreaPrefectures.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
-    // 各エリアの選択状態
     val selectedLargeArea by viewModel.selectedLargeArea.collectAsState()
     val selectedMiddleArea by viewModel.selectedMiddleArea.collectAsState()
     val selectedSmallArea by viewModel.selectedSmallArea.collectAsState()
 
-    // 中エリアと小エリアのリスト
     val middleAreas by viewModel.middleAreas.collectAsState()
     val smallAreas by viewModel.smallAreas.collectAsState()
 
-    // 中エリアと小エリアの読み込み状態
     val isMiddleAreasLoading by viewModel.isMiddleAreasLoading.collectAsState()
     val isSmallAreasLoading by viewModel.isSmallAreasLoading.collectAsState()
 
-    // 検索条件のState
     var searchQuery by remember { mutableStateOf(SearchQuery()) }
 
-    // プリセット選択状態
     var selectedPreset by remember { mutableStateOf<String?>(null) }
     val presets = listOf("宴会", "デート", "友人", "家族", "ランチ")
 
@@ -84,10 +80,10 @@ fun SearchScreen(
                         // 検索クエリが有効かチェック
                         if (searchQuery.isValid()) {
                             viewModel.performSearch(searchQuery) {
-                                onSearch(searchQuery) // ここではonSearchはナビゲーションのみを担当
+                                onSearch(searchQuery)
                             }
                         } else {
-                            // エラー表示などの処理
+                            Log.d("SearchScreen", "Cannot Search")
                         }
                     },
                     enabled = searchQuery.isValid(),
@@ -109,7 +105,6 @@ fun SearchScreen(
                 .padding(top=64.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // 名前・住所・電話番号で検索
             SearchSection(title = "名前・住所・電話番号で調べる") {
                 OutlinedTextField(
                     value = searchQuery.name ?: "",
@@ -150,9 +145,7 @@ fun SearchScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 場所から検索
             SearchSection(title = "場所から調べる") {
-                // 地図選択ボタン
                 OutlinedButton(
                     onClick = { /* TODO: 地図選択 */ },
                     modifier = Modifier
@@ -167,14 +160,12 @@ fun SearchScreen(
                     Text("地図から選択")
                 }
 
-                // 地方セクション
                 Text(
                     text = "地方",
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // 地方（ServiceArea）のカルーセル
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(bottom = 8.dp)
@@ -199,7 +190,6 @@ fun SearchScreen(
                     }
                 }
 
-                // 都道府県セクション（ServiceAreaが選択されている場合）
                 if (selectedServiceArea != null) {
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -235,7 +225,6 @@ fun SearchScreen(
                     }
                 }
 
-                // 市区町村セクション（LargeAreaが選択されている場合）
                 if (selectedLargeArea != null) {
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -278,7 +267,6 @@ fun SearchScreen(
                     }
                 }
 
-                // 小エリアセクション（MiddleAreaが選択されている場合）
                 if (selectedMiddleArea != null) {
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -326,7 +314,6 @@ fun SearchScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SearchSection(title = "詳細条件") {
-                    // プリセット
                     Text(
                         text = "プリセット",
                         style = MaterialTheme.typography.titleSmall,
@@ -349,7 +336,6 @@ fun SearchScreen(
                         }
                     }
 
-                    // キーワード
                     Text(
                         text = "キーワード",
                         style = MaterialTheme.typography.titleSmall,
@@ -367,7 +353,6 @@ fun SearchScreen(
                             .padding(bottom = 16.dp)
                     )
 
-                    // トグル設定（基本設定）
                     SectionDivider(title = "基本設定")
 
                     ToggleRow {
@@ -414,7 +399,6 @@ fun SearchScreen(
                         )
                     }
 
-                    // 時間帯
                     SectionDivider(title = "時間帯")
 
                     ToggleRow {
@@ -434,7 +418,6 @@ fun SearchScreen(
                         )
                     }
 
-                    // 設備
                     SectionDivider(title = "設備")
 
                     ToggleRow {
@@ -471,7 +454,6 @@ fun SearchScreen(
                         )
                     }
 
-                    // 飲食
                     SectionDivider(title = "飲食")
 
                     ToggleRow {
@@ -531,7 +513,6 @@ fun SearchScreen(
                         )
                     }
 
-                    // 目的
                     SectionDivider(title = "目的")
 
                     ToggleRow {
@@ -551,7 +532,6 @@ fun SearchScreen(
                         )
                     }
 
-                    // 宴会収容人数
                     Text(
                         text = "宴会収容人数",
                         style = MaterialTheme.typography.bodyMedium,
@@ -611,7 +591,6 @@ fun SearchScreen(
                         )
                     }
 
-                    // エンタメ
                     SectionDivider(title = "エンタメ")
 
                     ToggleRow {
@@ -679,11 +658,11 @@ fun AreaCard(
     onClick: () -> Unit
 ) {
     Card(
-        colors = CardDefaults.cardColors(), // 背景色は常に標準カラー
+        colors = CardDefaults.cardColors(),
         border = if (selected && colorScheme != null) {
-            BorderStroke(2.dp, colorScheme.primary) // 選択時は太い枠線
+            BorderStroke(2.dp, colorScheme.primary)
         } else {
-            BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)) // 非選択時は薄い枠線
+            BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f))
         },
         onClick = onClick,
         modifier = Modifier

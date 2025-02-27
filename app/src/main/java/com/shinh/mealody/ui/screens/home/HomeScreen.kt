@@ -1,4 +1,3 @@
-// HomeScreen.kt
 package com.shinh.mealody.ui.screens.home
 
 import android.Manifest
@@ -35,9 +34,8 @@ fun HomeScreen(
 ) {
     val hasLocationPermission by viewModel.hasLocationPermission.collectAsState()
     val matchingArea by viewModel.matchingArea.collectAsState()
-    val visitedShops by viewModel.visitedShops.collectAsState() // 履歴データの購読
+    val visitedShops by viewModel.visitedShops.collectAsState()
 
-    // 権限リクエスト用のLauncher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -59,12 +57,10 @@ fun HomeScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // ライブラリセクション
             HomeSection(title = "ライブラリ") {
-                Text("お気に入りの店舗を表示") // プレースホルダー
+                Text("お気に入りの店舗を表示")
             }
 
-            // 地域セクション
             HomeSection(title = "あなたの地域") {
                 LocationCards(
                     hasLocationPermission = hasLocationPermission,
@@ -86,19 +82,16 @@ fun HomeScreen(
                 )
             }
 
-            // 履歴セクション
             HomeSection(title = "もう一度") {
                 HistoryCarousel(
                     shops = visitedShops,
                     onShopClick = { shop ->
-                        // 店舗詳細画面へ遷移
                         Log.d("HomeScreen", "Shop clicked: $shop")
                         onRestaurantClicked(shop)
                     }
                 )
             }
 
-            // クーポンセクション
             HomeSection(title = "クーポン") {
                 CouponCarousel()
             }
@@ -158,7 +151,6 @@ private fun LocationCards(
             }
         }
 
-        // 近所のお店
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -190,7 +182,6 @@ private fun LocationCards(
             }
         }
 
-        // エリアカード - SmallArea
         matchingArea?.let { area ->
             Card(
                 modifier = Modifier
@@ -218,7 +209,6 @@ private fun LocationCards(
             }
         }
 
-        // エリアカード - MiddleArea
         matchingArea?.parentArea?.let { area ->
             Card(
                 modifier = Modifier
@@ -246,7 +236,6 @@ private fun LocationCards(
             }
         }
 
-        // エリアカード - LargeArea
         matchingArea?.parentArea?.parentArea?.let { area ->
             Card(
                 modifier = Modifier
@@ -283,7 +272,6 @@ private fun HistoryCarousel(
     onShopClick: (Shop) -> Unit
 ) {
     if (shops.isEmpty()) {
-        // 履歴がない場合のメッセージ
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -311,7 +299,6 @@ private fun HistoryCarousel(
                     Column(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        // 店舗画像
                         AsyncImage(
                             model = shop.photo.pc.s,
                             contentDescription = null,
@@ -321,7 +308,6 @@ private fun HistoryCarousel(
                                 .height(80.dp)
                         )
 
-                        // 店舗情報
                         Column(
                             modifier = Modifier.padding(8.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -337,7 +323,6 @@ private fun HistoryCarousel(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                // ジャンルタグ
                                 Surface(
                                     color = MaterialTheme.colorScheme.secondaryContainer,
                                     shape = RoundedCornerShape(4.dp)
@@ -367,7 +352,7 @@ private fun CouponCarousel() {
             Card(
                 modifier = Modifier
                     .width(280.dp)
-                    .height(180.dp), // 高さを調整
+                    .height(180.dp),
                 onClick = { /* TODO: クーポンのクリックハンドリング */ }
             ) {
                 Column(

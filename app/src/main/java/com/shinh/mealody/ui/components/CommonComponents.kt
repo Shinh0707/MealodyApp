@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LoadingContent(
-    loadingMessage: String = "読み込み中...",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    loadingMessage: String = "読み込み中..."
 ) {
     Box(
         modifier = modifier

@@ -71,7 +71,6 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun deleteNote(note: NoteEntity) {
-        // お気に入りノートは削除不可
         if (!repository.isNoteDeletable(note.id)) return
 
         viewModelScope.launch {

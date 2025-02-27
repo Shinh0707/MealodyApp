@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
@@ -48,7 +47,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.shinh.mealody.data.database.entity.ShopEntity
 import com.shinh.mealody.ui.components.EmptyContent
 import com.shinh.mealody.ui.components.ErrorContent
-import com.shinh.mealody.ui.components.restaurant.RestaurantCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,14 +67,12 @@ fun NoteScreen(
 
     var showRemoveDialog by remember { mutableStateOf<ShopEntity?>(null) }
 
-    // エラーメッセージがあればスナックバーに表示
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(message = it)
         }
     }
 
-    // 削除確認ダイアログ
     showRemoveDialog?.let { shop ->
         AlertDialog(
             onDismissRequest = { showRemoveDialog = null },
@@ -108,13 +104,11 @@ fun NoteScreen(
                         OutlinedTextField(
                             value = editingName,
                             onValueChange = {
-                                // お気に入りノートの場合は編集不可
                                 if (!isFavoriteNote) viewModel.updateNoteName(it)
                             },
                             label = { Text("ノート名") },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
-                            // お気に入りノートの場合は編集不可
                             enabled = !isFavoriteNote
                         )
                     } else {
@@ -128,7 +122,7 @@ fun NoteScreen(
                         }
                     } else {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "戻る")
+                            Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "戻る")
                         }
                     }
                 },
@@ -138,7 +132,6 @@ fun NoteScreen(
                             Icon(Icons.Default.Check, contentDescription = "保存")
                         }
                     } else {
-                        // お気に入りノートでなければ編集ボタンを表示
                         if (!isFavoriteNote) {
                             IconButton(onClick = { viewModel.startEditing() }) {
                                 Icon(Icons.Default.Edit, contentDescription = "編集")
@@ -192,7 +185,6 @@ fun NoteScreen(
                             )
                         }
 
-                        // 下部のスペース
                         item {
                             Spacer(modifier = Modifier.height(16.dp))
                         }
@@ -217,7 +209,6 @@ fun ShopItemWithRemove(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Shop情報
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -233,7 +224,6 @@ fun ShopItemWithRemove(
             )
         }
 
-        // 削除ボタン
         IconButton(onClick = onRemove) {
             Icon(
                 imageVector = Icons.Default.Remove,
@@ -245,9 +235,7 @@ fun ShopItemWithRemove(
     }
 }
 
-// ジャンルコードから名前を取得する関数（実際の実装ではAPIやリポジトリから取得する）
 fun getGenreName(genreCode: String): String {
-    // 簡易的な実装（実際にはもっと詳細なマッピングが必要）
     return when (genreCode) {
         "G001" -> "居酒屋"
         "G002" -> "ダイニングバー・バル"

@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.shinh.mealody.data.model.Area
-import com.shinh.mealody.data.model.Shop
 import com.shinh.mealody.ui.components.EmptyContent
 import com.shinh.mealody.ui.components.ErrorContent
 import com.shinh.mealody.ui.components.LoadingContent
@@ -64,7 +63,6 @@ fun NearbySearchScreen(
                 TopAppBar(
                     title = { Text("近くのお店") }
                 )
-                // 範囲スライダー
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Text(
                         text = "検索範囲: ${currentRange.roundToInt()}m",
@@ -113,7 +111,6 @@ fun NearbySearchScreen(
                         .padding(innerPadding),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    // 店舗カルーセルセクション
                     item {
                         Text(
                             text = "近くのお店 ($storedShops/$availableShops)",
@@ -126,17 +123,16 @@ fun NearbySearchScreen(
                         RestaurantCarousel(
                             shops = nearbyShops,
                             currentLocation = latLng,
-                            onShopSelected = { viewModel.searchManager.selectShop(it) },
+                            onShopSelected = { viewModel.selectShop(it) },
                             availableMore = availableMore,
                             onShowMore = { viewModel.searchMore() },
                             getFavLevel = {viewModel.getFavLevel(it)},
                             onHeartLevelChanged = { shopId, level ->
-                                viewModel.updateHeartLevel(shopId, level)
+                                viewModel.updateFavoriteLevel(shopId, level)
                             }
                         )
                     }
 
-                    // 選択されたお店の詳細
                     item {
                         AnimatedVisibility(
                             visible = selectedShop != null,
@@ -146,21 +142,20 @@ fun NearbySearchScreen(
                             selectedShop?.let { shop ->
                                 ShopDetailCard(
                                     shop = shop,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                     favoriteLevel = viewModel.getFavLevel(shop).toByte(),
                                     onFavoriteLevelChanged = { level ->
-                                        viewModel.updateHeartLevel(shop.id, level.toInt())
+                                        viewModel.updateFavoriteLevel(shop.id, level.toInt())
                                     },
                                     notes = viewModel.notes.collectAsState().value,
                                     onAddShopToNotes = { noteIds ->
                                         viewModel.addShopToNotes(shop.id, noteIds)
-                                    },
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                    }
                                 )
                             }
                         }
                     }
 
-                    // エリア選択（画面下半分）
                     item {
                         AreaSelection(
                             matchingArea = matchingArea,

@@ -9,7 +9,6 @@ import com.shinh.mealody.data.database.model.ShopItem
 class Converters {
     private val gson = Gson()
 
-    // ShopItemリストの変換
     @TypeConverter
     fun fromShopListToString(shopList: List<ShopItem>): String {
         return gson.toJson(shopList)
@@ -26,7 +25,6 @@ class Converters {
         }
     }
 
-    // DateTimeInfoの変換
     @TypeConverter
     fun fromDateTimeInfoToString(dateTimeInfo: DateTimeInfo): String {
         return gson.toJson(dateTimeInfo)

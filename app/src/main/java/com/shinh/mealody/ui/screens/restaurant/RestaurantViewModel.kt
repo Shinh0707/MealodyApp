@@ -23,7 +23,7 @@ import javax.inject.Inject
 class RestaurantViewModel @Inject constructor(
     private val hotpepperClient: HotpepperClient,
     private val mealodyRepository: MealodyRepository,
-    val favoriteCache: FavoriteCache,  // publicで公開
+    private val favoriteCache: FavoriteCache,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -60,7 +60,6 @@ class RestaurantViewModel @Inject constructor(
             try {
                 hotpepperClient.searchShopByID(shopId).onSuccess { fetchedShop ->
                     _shop.value = fetchedShop
-                    // ショップ情報をローカルDBに保存
                     fetchedShop?.let { saveShopToDatabase(it) }
                 }.onFailure { exception ->
                     _errorMessage.value = "店舗情報の取得に失敗しました: ${exception.message}"
@@ -96,7 +95,6 @@ class RestaurantViewModel @Inject constructor(
         }
     }
 
-    // 選択したノートにショップを追加
     fun addShopToNotes(noteIds: List<Int>) {
         viewModelScope.launch {
             try {

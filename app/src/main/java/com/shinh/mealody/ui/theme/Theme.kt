@@ -1,6 +1,7 @@
 package com.shinh.mealody.ui.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -15,11 +16,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    // カスタムカラースキームを後で定義
+
 )
 
 private val LightColorScheme = lightColorScheme(
-    // カスタムカラースキームを後で定義
+
 )
 
 @Composable
@@ -31,7 +32,11 @@ fun MealodyTheme(
     val colorScheme = when {
         dynamicColor -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                dynamicDarkColorScheme(context)
+            } else {
+                TODO("VERSION.SDK_INT < S")
+            } else dynamicLightColorScheme(context)
         }
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
@@ -40,6 +45,7 @@ fun MealodyTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+            @Suppress("DEPRECATION")
             window.statusBarColor = colorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }

@@ -1,7 +1,7 @@
 package com.shinh.mealody.data.repository
 
+import android.util.Log
 import com.shinh.mealody.data.model.Shop
-import com.shinh.mealody.data.repository.MealodyRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,17 +51,15 @@ class FavoriteCache @Inject constructor(
 
     // お気に入りレベルを更新
     fun updateFavoriteLevel(shopId: String, level: Int) {
-        // キャッシュに即時反映
         _favoriteMap.update { currentMap ->
             currentMap + (shopId to level)
         }
 
-        // データベースに保存
         cacheScope.launch {
             try {
                 repository.updateFavoriteLevel(shopId, level.toByte())
             } catch (e: Exception) {
-                // エラー処理
+                Log.e("updateFavoriteLevel", e.message ?: "")
             }
         }
     }

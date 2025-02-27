@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -135,7 +134,6 @@ fun CreditContent() {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        // 中サイズのバナー(88x35)
         AsyncImage(
             model = ImageRequest.Builder(context)
                 .data("https://webservice.recruit.co.jp/banner/hotpepper-m.gif")
@@ -150,7 +148,6 @@ fun CreditContent() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // テキスト形式のクレジット
         Text(
             text = "Powered by ",
             style = MaterialTheme.typography.bodyMedium,

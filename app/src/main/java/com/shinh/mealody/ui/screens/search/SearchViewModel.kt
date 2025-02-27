@@ -51,7 +51,6 @@ class SearchViewModel @Inject constructor(
     private val _smallAreas = MutableStateFlow<List<SmallArea>>(emptyList())
     val smallAreas: StateFlow<List<SmallArea>> = _smallAreas.asStateFlow()
 
-    // ローディング状態
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -61,7 +60,6 @@ class SearchViewModel @Inject constructor(
     private val _isSmallAreasLoading = MutableStateFlow(false)
     val isSmallAreasLoading: StateFlow<Boolean> = _isSmallAreasLoading.asStateFlow()
 
-    // エラー状態
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
@@ -193,12 +191,9 @@ class SearchViewModel @Inject constructor(
     fun performSearch(query: SearchQuery, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
-                // 検索処理を実行（suspend関数）
                 searchManager.search(query)
-                // 完了時のコールバックを実行
                 onComplete()
             } catch (e: Exception) {
-                // エラー処理
                 _error.value = "検索中にエラーが発生しました: ${e.message}"
             }
         }

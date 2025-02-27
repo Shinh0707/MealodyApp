@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.shinh.mealody.data.api.HotpepperClient
+import com.shinh.mealody.data.database.entity.NoteEntity
+import com.shinh.mealody.data.database.entity.ShopEntity
 import com.shinh.mealody.data.location.LocationUtil
 import com.shinh.mealody.data.model.Shop
 import com.shinh.mealody.data.model.SmallArea
@@ -18,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -43,16 +46,6 @@ class NearbySearchViewModel @Inject constructor(
 
     private var currentLocation: LatLng? = null
 
-    // 特定のショップのお気に入りレベルを取得
-    fun getFavLevel(shop: Shop): Int {
-        return favoriteCache.getFavoriteLevel(shop)
-    }
-
-    // お気に入りレベルを更新
-    fun updateHeartLevel(shopId: String, level: Int) {
-        favoriteCache.updateFavoriteLevel(shopId, level)
-    }
-
     fun initialize(latLng: LatLng) {
         searchManager.resetSearch()
         viewModelScope.launch {
@@ -73,7 +66,6 @@ class NearbySearchViewModel @Inject constructor(
                     _matchingArea.value = hotpepperClient.findMatchingArea(addr)
                 }
 
-                // 店舗の検索
                 val rangeLevel = calculateRangeLevel(_currentRange.value)
                 searchNearbyShops(latLng, rangeLevel)
             } catch (e: Exception) {
@@ -93,18 +85,18 @@ class NearbySearchViewModel @Inject constructor(
             lng = latLng.longitude,
             range = rangeLevel,
             type = QueryType.LITE,
-            count = 100  // 最大件数を取得
+            count = 100
         )
 
         searchManager.search(query)
-            .onSuccess { results ->
+            .onSuccess { _ ->
                 filterShopsByDistance(_currentRange.value.roundToInt())
             }
     }
 
     fun searchMore() {
         viewModelScope.launch {
-            searchManager.searchMore().onSuccess { results ->
+            searchManager.searchMore().onSuccess { _ ->
                 filterShopsByDistance(_currentRange.value.roundToInt())
             }
         }
@@ -135,15 +127,40 @@ class NearbySearchViewModel @Inject constructor(
             else -> 5
         }
     }
-    // ノートリストを取得
-    val notes = repository.getAllNotes()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    fun getFavLevel(shop: Shop): Int {
+        return favoriteCache.getFavoriteLevel(shop)
+    }
 
-    // ショップをノートに追加
+    private val _notes = MutableStateFlow<List<NoteEntity>>(emptyList())
+    val notes: StateFlow<List<NoteEntity>> = _notes.asStateFlow()
+
+    init {
+        loadNotes()
+    }
+
+    private suspend fun saveShopToDatabase(shop: Shop) {
+        val shopEntity = ShopEntity(
+            id = shop.id,
+            name = shop.name,
+            genreCode = shop.genre.code,
+            smallImageUrl = shop.photo.pc.s
+        )
+        repository.saveShop(shopEntity)
+    }
+
+    fun updateFavoriteLevel(shopId: String, level: Int) {
+        favoriteCache.updateFavoriteLevel(shopId, level)
+    }
+
+    private fun loadNotes() {
+        viewModelScope.launch {
+            repository.getAllNotes()
+                .collect { noteList ->
+                    _notes.value = noteList
+                }
+        }
+    }
+
     fun addShopToNotes(shopId: String, noteIds: List<Int>) {
         viewModelScope.launch {
             try {
@@ -151,8 +168,19 @@ class NearbySearchViewModel @Inject constructor(
                     repository.addShopToNote(noteId, shopId)
                 }
             } catch (e: Exception) {
-                // エラー処理
+                Log.e("AddShopToNotes", e.message ?: "")
             }
         }
+    }
+
+    fun selectShop(shop: Shop){
+        viewModelScope.launch {
+            try {
+                saveShopToDatabase(shop)
+            } catch (e: Exception){
+                Log.e("Select Shop", e.message ?: "")
+            }
+        }
+        searchManager.selectShop(shop)
     }
 }

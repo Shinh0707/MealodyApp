@@ -5,7 +5,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 import com.shinh.mealody.data.api.HotpepperClient
-import com.shinh.mealody.data.database.converter.Converters
 import com.shinh.mealody.data.location.LocationUtil
 
 data class GourmetSearchResponse(
@@ -143,8 +142,10 @@ data class Shop(
 
     // その他情報
     @SerializedName("shop_detail_memo")
+    @JsonAdapter(EmptyStringAsNullTypeAdapter::class)
     val shopDetailMemo: String? = null,
     @SerializedName("other_memo")
+    @JsonAdapter(EmptyStringAsNullTypeAdapter::class)
     val otherMemo: String? = null,
 
     // オプション情報（type指定による）
@@ -430,7 +431,7 @@ interface Area{
     }
 
     fun getAreaType(): AreaType?{
-        return Area.getAreaType(code)
+        return getAreaType(code)
     }
 
     fun getParentAreas(childResult: MutableList<Area>): List<Area>{

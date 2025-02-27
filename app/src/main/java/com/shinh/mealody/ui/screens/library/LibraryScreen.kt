@@ -1,6 +1,5 @@
 package com.shinh.mealody.ui.screens.library
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +23,6 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,17 +42,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shinh.mealody.data.database.entity.NoteEntity
-import com.shinh.mealody.data.database.entity.ShopEntity
-import com.shinh.mealody.data.database.model.DateTimeInfo
 import com.shinh.mealody.data.repository.MealodyRepository
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(
     paddingValues: PaddingValues,
@@ -69,14 +62,12 @@ fun LibraryScreen(
     var showCreateNoteDialog by remember { mutableStateOf(false) }
     var newNoteName by remember { mutableStateOf("") }
 
-    // エラーメッセージがあればスナックバーに表示
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(message = it)
         }
     }
 
-    // 新規ノート作成ダイアログ
     if (showCreateNoteDialog) {
         AlertDialog(
             onDismissRequest = { showCreateNoteDialog = false },
@@ -139,7 +130,6 @@ fun LibraryScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // ノート一覧のヘッダー
                     if (notes.isNotEmpty()) {
                         item {
                             Text(
@@ -150,7 +140,6 @@ fun LibraryScreen(
                         }
                     }
 
-                    // ノート一覧
                     items(notes) { note ->
                         NoteCard(
                             note = note,
@@ -160,7 +149,6 @@ fun LibraryScreen(
                         )
                     }
 
-                    // 空のスペース（FloatingActionButtonのためのパディング）
                     item {
                         Spacer(modifier = Modifier.height(80.dp))
                     }
@@ -220,7 +208,6 @@ fun NoteCard(
                 )
             }
 
-            // 削除可能な場合のみ削除ボタンを表示
             if (isDeletable) {
                 IconButton(onClick = onDelete) {
                     Icon(
